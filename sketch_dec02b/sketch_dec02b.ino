@@ -6,9 +6,11 @@ String li = "";
 int status = WL_IDLE_STATUS;
 WiFiClient client;
 
+ StaticJsonBuffer<200> jsonBuffer;
+ JsonObject& root = jsonBuffer.createObject();
+   int re = client.connect("192.168.133.227", 80);
 
 void setup() {
-
   Serial.begin(115200);
   WiFi.begin("간절한 임베디드", "1234abcd");
   Serial.print("Connecting");
@@ -25,21 +27,19 @@ void setup() {
 
 void loop() {
   jsondata = "";
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
-  root["openStatus "] = "true";
-  root["garbageAmount "] = "30";
+  root["openStatus"] = true;
+  root["garbageAmount"] = 30;
   root.printTo(jsondata);
-  int re = client.connect("192.168.133.227", 80);
+  re = client.connect("192.168.133.227", 80);
   if (re) {
-    client.println("GET /test HTTP/1.1");
+    client.println("POST /sewer/updateSewerInfo/1 HTTP/1.1");
     client.println("Host: 192.168.133.227");
     client.println("Cache-Control: no-cache");
     client.println("Content-Type: application/json");
     client.print("Content-Length: ");
     client.println(jsondata.length());
     client.println();
-  client.print(jsondata);
+    client.print(jsondata);
     li = client.readString();
     Serial.println(li);
   }
